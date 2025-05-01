@@ -1,0 +1,153 @@
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+struct Node {
+    string name;    
+    int value;
+    double price;
+    Node* next;
+};
+
+class ItemList {
+private:
+    Node* head;
+
+public:
+    ItemList() : head(nullptr) {}
+    ~ItemList() {
+        clear();
+    }
+      // добавление в начало
+    void push_front(string name, int value, double price) {
+        Node* newNode = new Node{name, value, price, head};
+        head = newNode;
+    }
+        // добавление в конец
+    void push_back(string name, int value, double price) {
+        Node* newNode = new Node{name, value, price, nullptr};
+
+        if (head == nullptr) {
+            head = newNode;
+            return;
+        }
+
+        Node* lastNode = head;
+        while (lastNode->next != nullptr) {
+            lastNode = lastNode->next;
+        }
+        lastNode->next = newNode;
+    }
+        // добавлеие после заданного элемента
+    void insertAfter(string afterName, string name, int value, double price) {
+        Node* current = head;
+        while (current != nullptr) {
+            if (current->name == afterName) {
+                Node* newNode = new Node{name, value, price, current->next};
+                current->next = newNode;
+                return;
+            }
+            current = current->next;
+        }
+        cout << "Элемент с именем " << afterName << " не найден." << endl;
+    }
+        // добавление перед заданным элементом
+    void insertBefore(string beforeName, string name, int value, double price) {
+        if (head == nullptr) {
+            cout << "Список пуст." << endl;
+            return;
+        }
+
+        if (head->name == beforeName) {
+            push_front(name, value, price);
+            return;
+        }
+
+        Node* current = head;
+        while (current->next != nullptr) {
+            if (current->next->name == beforeName) {
+                Node* newNode = new Node{name, value, price, current->next};
+                current->next = newNode;
+                return;
+            }
+            current = current->next;
+        }
+        cout << "Элемент с именем " << beforeName << " не найден." << endl;
+    }
+          // удаление элемента из списка
+    void removeNode(string name) {
+        if (head == nullptr) {
+            cout << "Список пуст." << endl;
+            return;
+        }
+
+        if (head->name == name) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+            return;
+        }
+
+        Node* current = head;
+        while (current->next != nullptr) {
+            if (current->next->name == name) {
+                Node* temp = current->next;
+                current->next = current->next->next;
+                delete temp;
+                return;
+            }
+            current = current->next;
+        }
+        cout << "Элемент с именем " << name << " не найден." << endl;
+    }
+         // вывод всех элементов
+    void printList() const {
+        Node* temp = head;
+        while (temp != nullptr) {
+            cout << "Name: " << temp->name << ", Value: " << temp->value << ", Price: " << temp->price << endl;
+            temp = temp->next;
+        }
+    }
+       // освобождение памяти
+    void clear() {
+        Node* current = head;
+        while (current != nullptr) {
+            Node* next = current->next;
+            delete current;
+            current = next;
+        }
+        head = nullptr;
+    }
+};
+
+int main() {
+    ItemList list;
+
+    // добавляем элементы
+    list.push_front("Bread", 35, 1.5);
+    list.push_front("Apple", 5, 0.75);
+    list.push_back("Milk", 17, 1.25);
+
+    // выводим список
+    cout << "Список после добавления элементов:" << endl;
+    list.printList();
+
+    // добавляем элемент после "Apple"
+    list.insertAfter("Apple", "Chips", 49, 2.0);
+    cout << "\nСписок после добавления Chips после Apple:" << endl;
+    list.printList();
+
+    // добавляем элемент перед "Bread"
+    list.insertBefore("Bread", "Egg", 8, 2.5);
+    cout << "\nСписок после добавления Egg перед Bread:" << endl;
+    list.printList();
+
+    // удаляем элемент "Chips"
+    list.removeNode("Chips");
+    cout << "\nСписок после удаления Chips:" << endl;
+    list.printList();
+
+    return 0;
+}
