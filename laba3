@@ -1,0 +1,189 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+class Point {
+public:
+    virtual double getX() const = 0;
+    virtual double getY() const = 0;
+    virtual void move(double dx, double dy) = 0;
+    virtual ~Point() {}
+};
+
+class BasicPoint : public Point {
+private:
+    double x, y;
+public:
+    BasicPoint(double x, double y) : x(x), y(y) {}
+
+    double getX() const override { return x; }
+    double getY() const override { return y; }
+
+    void move(double dx, double dy) override {
+        x += dx;
+        y += dy;
+    }
+};
+
+class Shape {
+public:
+    virtual void draw() const = 0;
+    virtual void erase() const = 0;
+    virtual void move(double dx, double dy) = 0;
+    virtual void rotate(double angle) = 0;
+    virtual ~Shape() {}
+};
+
+class Line : public Shape {
+private:
+    BasicPoint start, end;
+public:
+    Line(double x1, double y1, double x2, double y2)
+        : start(x1, y1), end(x2, y2) {}
+
+    void draw() const override {
+        cout << "Рисуется линия от точки (" << start.getX() << ", " << start.getY()
+                  << ") до точки (" << end.getX() << ", " << end.getY() << ")" << endl;
+    }
+
+    void erase() const override {
+        cout << "Стирается линия" << endl;
+    }
+
+    void move(double dx, double dy) override {
+        start.move(dx, dy);
+        end.move(dx, dy);
+    }
+
+    void rotate(double angle) override {
+        double radians = angle * M_PI / 180.0;
+        double dx = end.getX() - start.getX();
+        double dy = end.getY() - start.getY();
+        double newX = dx * cos(radians) - dy * sin(radians);
+        double newY = dx * sin(radians) + dy * cos(radians);
+        end = BasicPoint(start.getX() + newX, start.getY() + newY);
+    }
+};
+
+class Rectangle : public Shape {
+protected:
+    BasicPoint topLeft;
+    double width, height;
+public:
+    Rectangle(double x, double y, double w, double h)
+        : topLeft(x, y), width(w), height(h) {}
+
+    void draw() const override {
+        cout << "Рисуется прямоугольник с левой верхней точкой в (" << topLeft.getX() << ", " << topLeft.getY()
+                  << "), ширина: " << width << ", высота: " << height << endl;
+    }
+
+    void erase() const override {
+        cout << "Стирается прямоугольник" << endl;
+    }
+
+    void move(double dx, double dy) override {
+        topLeft.move(dx, dy);
+    }
+
+    void rotate(double angle) override {
+        cout << "Поворачивается прямоугольник на " << angle << " градусов" << endl;
+    }
+};
+
+class Square : public Rectangle {
+public:
+    Square(double x, double y, double side)
+        : Rectangle(x, y, side, side) {}
+
+    void draw() const override {
+        cout << "Рисуется квадрат с левой верхней точкой в (" << topLeft.getX() << ", " << topLeft.getY()
+                  << "), сторона: " << width << endl;
+    }
+
+    void erase() const override {
+        cout << "Стирается квадрат" << endl;
+    }
+
+    void rotate(double angle) override {
+        cout << "Поворачивается квадрат на " << angle << " градусов" << endl;
+    }
+};
+
+class Parallelogram : public Shape {
+protected:
+    BasicPoint topLeft;
+    double base, height, offset;
+public:
+    Parallelogram(double x, double y, double b, double h, double o)
+        : topLeft(x, y), base(b), height(h), offset(o) {}
+
+    void draw() const override {
+        cout << "Рисуется параллелограмм с левой верхней точкой в (" << topLeft.getX() << ", " << topLeft.getY()
+                  << "), основание: " << base << ", высота: " << height
+                  << ", смещение: " << offset << endl;
+    }
+
+    void erase() const override {
+        cout << "Стирается параллелограмм" << endl;
+    }
+
+    void move(double dx, double dy) override {
+        topLeft.move(dx, dy);
+    }
+
+    void rotate(double angle) override {
+        cout << "Поворачивается параллелограмм на " << angle << " градусов" << endl;
+    }
+};
+
+class Rhombus : public Parallelogram {
+public:
+    Rhombus(double x, double y, double d1, double d2)
+        : Parallelogram(x, y, d1, d2, 0) {}
+
+    void draw() const override {
+cout << "Рисуется ромб с левой верхней точкой в (" << topLeft.getX() << ", " << topLeft.getY()
+                  << "), диагонали: " << base << " и " << height << endl;
+    }
+
+    void erase() const override {
+        cout << "Стирается ромб" << endl;
+    }
+
+    void rotate(double angle) override {
+        cout << "Поворачивается ромб на " << angle << " градусов" << endl;
+    }
+};
+
+void demo(Shape* shape) {
+    shape->draw();
+    shape->move(5, 5);
+    shape->rotate(45);
+    shape->erase();
+}
+
+int main() {
+    Square sq(0, 0, 20);
+    Line ln(0, 0, 10, 10);
+    Rectangle rect(1, 1, 5, 2);
+    Parallelogram pg(2, 2, 12, 4, 3);
+    Rhombus rh(3, 3, 5, 7);
+
+    cout << "\n Квадрат" << endl;
+    demo(&sq);
+
+    cout << "\n Линия" << endl;
+    demo(&ln);
+
+    cout << "\n Прямоугольник" << endl;
+    demo(&rect);
+
+    cout << "\n Параллелограмм" << endl;
+    demo(&pg);
+
+    cout << "\n Ромб" << endl;
+    demo(&rh);
+
+    return 0;
+}
